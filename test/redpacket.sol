@@ -5,7 +5,7 @@ contract redpacket {
 	uint public number;
 
 	constructor(uint _number) payable public {
-	    richer = msg.sender;
+	    richer = payable(msg.sender);
 	    number = _number;
 	}
 
@@ -18,15 +18,19 @@ contract redpacket {
 		require(getBalance() > 0);
 		number --;
 
-		uint random = uint(keccak256(abi.encode(now,msg.sender,"richer"))) % 100;
+		uint random = uint(keccak256(abi.encode(block.timestamp,msg.sender,"richer"))) % 100;
 		uint balance = getBalance();
-		msg.sender.transfer(balance * random / 100);
+		payable(msg.sender).transfer(balance * random / 100);
 		return true;
 	}
 
 	function kill() public {
 	    require(msg.sender == richer);
 	    selfdestruct(richer);
+	}
+	
+	function getBalanceByAddress(address _address) public view returns (uint) {
+	    return _address.balance;
 	}
 
 }
